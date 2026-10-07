@@ -1,1 +1,1899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MAHSEN // EDITORIAL COUTURE & READY-TO-WEAR</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;600;700;900&family=IBM+Plex+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@1,400;1,700;1,900&display=swap');
 
+    :root {
+      --dark-stage: #09090b;
+      --card-bg: #131316;
+      --card-inner: #19191d;
+      --border-dark: #242429;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --swiss-red: #e62314;
+      --swiss-red-glow: rgba(230, 35, 20, 0.35);
+      --canvas: #f2efe9;
+      --canvas-pure: #ffffff;
+      --ink: #0a0a0c;
+      --white: #ffffff;
+      --muted: #787882;
+      --text-dim: #9e9ea8;
+      --text-bright: #f5f5f7;
+      --font-sans: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-serif: 'Playfair Display', Georgia, serif;
+      --font-mono: 'IBM Plex Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--dark-stage);
+      color: var(--text-bright);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+      padding: 32px 24px 120px;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1360px;
+      margin: 0 auto;
+    }
+
+    /* Swiss Grid Overlay */
+    #gridOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      display: flex;
+      justify-content: center;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(230, 35, 20, 0.04) 0px,
+        rgba(230, 35, 20, 0.04) 1px,
+        transparent 1px,
+        transparent 16px
+      );
+    }
+    #gridOverlay.active { opacity: 1; }
+
+    .grid-overlay-cols {
+      width: 100%;
+      max-width: 1360px;
+      height: 100%;
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 20px;
+      padding: 0 24px;
+    }
+
+    .grid-overlay-col {
+      background: rgba(230, 35, 20, 0.04);
+      border-left: 1px dashed rgba(230, 35, 20, 0.3);
+      border-right: 1px dashed rgba(230, 35, 20, 0.3);
+      position: relative;
+    }
+    .grid-overlay-col::before {
+      content: attr(data-col);
+      position: absolute;
+      top: 8px;
+      left: 4px;
+      font-family: var(--font-mono);
+      font-size: 8px;
+      color: var(--swiss-red);
+      font-weight: 700;
+    }
+
+    /* Store Header */
+    .store-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-dark);
+      padding-bottom: 20px;
+      margin-bottom: 32px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .brand-title {
+      font-family: var(--font-sans);
+      font-size: 1.3rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--swiss-red);
+      display: inline-block;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 28px;
+      color: var(--text-dim);
+    }
+    .header-nav span:hover { color: var(--white); cursor: pointer; }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .bag-pill {
+      background: var(--card-bg);
+      border: 1px solid var(--border-dark);
+      color: var(--white);
+      padding: 7px 16px;
+      border-radius: 2px;
+      display: flex;
+      gap: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .bag-pill:hover { border-color: var(--white); }
+    .bag-pill span { color: var(--swiss-red); }
+
+    .grid-toggle-btn {
+      background: transparent;
+      border: 1px solid var(--border-dark);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      padding: 6px 12px;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .grid-toggle-btn:hover, .grid-toggle-btn.active {
+      border-color: var(--swiss-red);
+      color: var(--swiss-red);
+      background: rgba(230, 35, 20, 0.08);
+    }
+
+    /* Telemetry Bar */
+    .top-telemetry-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 18px;
+      background: #111114;
+      border: 1px solid var(--border-dark);
+      margin-bottom: 48px;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+
+    .telemetry-tag {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-pulse {
+      width: 6px;
+      height: 6px;
+      background: var(--swiss-red);
+      border-radius: 50%;
+      animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .grid-view-switcher {
+      display: flex;
+      gap: 4px;
+    }
+    .view-btn {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      padding: 3px 8px;
+      cursor: pointer;
+    }
+    .view-btn.active, .view-btn:hover {
+      background: var(--white);
+      color: var(--ink);
+      border-color: var(--white);
+    }
+
+    /* Section Meta Header */
+    .section-wrapper {
+      margin-bottom: 88px;
+    }
+
+    .section-meta-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 2px solid var(--white);
+      padding-bottom: 12px;
+      margin-bottom: 24px;
+    }
+
+    .section-name {
+      font-size: clamp(1.4rem, 2.5vw, 2rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+    }
+
+    .section-sub {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* Section 1: Product Matrix */
+    .fashion-matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .fashion-matrix-grid.view-2col {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .fashion-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-dark);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 460px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+    }
+    .fashion-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .fashion-card.span-2 { grid-column: span 2; }
+    .fashion-matrix-grid.view-2col .fashion-card.span-2 { grid-column: span 1; }
+
+    .fashion-card.accent-red { background: var(--swiss-red); border-color: var(--swiss-red); color: var(--white); }
+    .fashion-card.accent-canvas { background: var(--canvas); border-color: var(--canvas); color: var(--ink); }
+
+    .card-top-tag {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      color: var(--muted);
+      z-index: 2;
+    }
+    .accent-canvas .card-top-tag { color: #666; border-color: rgba(0,0,0,0.15); }
+    .accent-red .card-top-tag { color: rgba(255,255,255,0.85); border-color: rgba(255,255,255,0.3); }
+
+    .garment-img-frame {
+      width: 100%;
+      height: 250px;
+      background: #0d0d10;
+      border: 1px solid var(--border-subtle);
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .accent-canvas .garment-img-frame {
+      background: #e4e1d8;
+      border-color: rgba(0,0,0,0.1);
+    }
+
+    .garment-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      filter: contrast(106%);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .fashion-card:hover .garment-photo {
+      transform: scale(1.05);
+    }
+
+    .photo-overlay-tag {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      padding: 3px 6px;
+      color: #eaeaea;
+      letter-spacing: 0.05em;
+      border-radius: 2px;
+      z-index: 2;
+    }
+
+    .photo-zoom-tag {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      padding: 3px 6px;
+      color: var(--swiss-red);
+      font-weight: 700;
+      border-radius: 2px;
+      z-index: 2;
+    }
+
+    .swatch-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 10px 0 6px;
+    }
+
+    .swatch-label {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-right: 4px;
+    }
+
+    .swatch-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 2px;
+      border: 1px solid var(--border-dark);
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+    .swatch-dot:hover, .swatch-dot.active {
+      transform: scale(1.25);
+      border-color: var(--white);
+      box-shadow: 0 0 8px rgba(255,255,255,0.4);
+    }
+    .swatch-black { background: #0e0e10; }
+    .swatch-chalk { background: #e8e5dc; }
+    .swatch-red { background: var(--swiss-red); }
+
+    .product-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 4px;
+    }
+
+    .product-price {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-bright);
+    }
+    .accent-canvas .product-price { color: var(--ink); }
+
+    .size-selector {
+      display: flex;
+      gap: 6px;
+      margin: 12px 0;
+    }
+
+    .size-btn {
+      background: transparent;
+      border: 1px solid var(--border-dark);
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      padding: 4px 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .size-btn:hover, .size-btn.active {
+      background: var(--white);
+      color: var(--ink);
+      border-color: var(--white);
+    }
+    .accent-canvas .size-btn { border-color: rgba(0,0,0,0.2); color: var(--ink); }
+    .accent-canvas .size-btn:hover { background: var(--ink); color: var(--white); }
+
+    .quick-buy-btn {
+      background: var(--white);
+      color: var(--ink);
+      border: none;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 10px 14px;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: background 0.15s;
+    }
+    .quick-buy-btn:hover { background: var(--swiss-red); color: var(--white); }
+
+    .split-product-card-body {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 20px;
+      align-items: stretch;
+      flex: 1;
+    }
+
+    .split-img-box {
+      background: #0d0d10;
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+      position: relative;
+      min-height: 280px;
+    }
+    .split-img-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      filter: contrast(108%);
+    }
+
+    .split-details-box {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 4px 0;
+    }
+
+    /* Section 2: Lookbook */
+    .lookbook-stage {
+      background: #111113;
+      border: 1px solid var(--border-dark);
+      padding: 36px;
+    }
+
+    .lookbook-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1.6fr 1.3fr;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .lookbook-col {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .lookbook-col-border {
+      border-right: 1px solid var(--border-subtle);
+      padding-right: 28px;
+    }
+
+    .lookbook-col-leftborder {
+      border-left: 1px solid var(--border-subtle);
+      padding-left: 28px;
+    }
+
+    .micro-spec-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      margin-top: 8px;
+    }
+    .micro-spec-table td {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--muted);
+    }
+    .micro-spec-table td:last-child {
+      text-align: right;
+      color: var(--white);
+      font-weight: 600;
+    }
+
+    .editorial-hero-title {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: clamp(2rem, 3.2vw, 2.8rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+    }
+
+    .broadsheet-hero-img-box {
+      height: 360px;
+      border: 1px solid var(--border-dark);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .broadsheet-hero-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      filter: contrast(110%);
+    }
+
+    /* Section 3: Campaign Posters */
+    .poster-stage {
+      background: var(--card-bg);
+      border: 1px solid var(--border-dark);
+      padding: 40px;
+      position: relative;
+    }
+
+    .poster-gallery {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      align-items: stretch;
+      position: relative;
+    }
+
+    .poster {
+      position: relative;
+      aspect-ratio: 1 / 1.45;
+      background: #111114;
+      border: 1px solid var(--border-dark);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.2s;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .poster:hover {
+      transform: translateY(-8px);
+      z-index: 50 !important;
+      border-color: rgba(255, 255, 255, 0.35);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.95);
+    }
+
+    .poster-full-img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      opacity: 0.88;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+      z-index: 1;
+    }
+    .poster:hover .poster-full-img {
+      transform: scale(1.05);
+      opacity: 0.98;
+    }
+
+    .poster-look1 {
+      background: #0d0d0f;
+    }
+    .poster-meta {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: #fff;
+      line-height: 1.35;
+      position: relative;
+      z-index: 5;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    }
+
+    .poster-vertical-title {
+      position: absolute;
+      bottom: 20px;
+      left: 18px;
+      font-family: var(--font-sans);
+      font-size: clamp(2.4rem, 3.5vw, 3.4rem);
+      font-weight: 900;
+      line-height: 0.85;
+      color: #ffffff;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      letter-spacing: -0.04em;
+      z-index: 5;
+      text-shadow: 0 4px 16px rgba(0,0,0,0.9);
+    }
+
+    .poster-dual {
+      background: #0e0e11;
+    }
+    .dual-header {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.4em;
+      color: #ffffff;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      z-index: 5;
+    }
+    .dual-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 14px 0;
+      z-index: 5;
+      flex: 1;
+    }
+    .dual-photo-slot {
+      aspect-ratio: 3 / 4;
+      background: #17171b;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      overflow: hidden;
+    }
+    .dual-photo-slot img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.95;
+    }
+
+    .poster-seven {
+      background: #0d0d10;
+      color: var(--white);
+      position: relative;
+    }
+    .seven-header-box {
+      z-index: 5;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    }
+    .seven-giant-graphic {
+      font-family: var(--font-sans);
+      font-size: 8.5rem;
+      font-weight: 900;
+      line-height: 0.75;
+      text-align: right;
+      letter-spacing: -0.08em;
+      color: var(--white);
+      overflow: hidden;
+      margin-bottom: -10px;
+      z-index: 5;
+      opacity: 0.95;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.9);
+    }
+
+    .poster-red {
+      background: var(--swiss-red);
+      color: var(--white);
+      position: relative;
+    }
+    .red-giant-type {
+      position: absolute;
+      bottom: 24px;
+      left: -6px;
+      font-size: clamp(5rem, 7vw, 7.5rem);
+      font-weight: 900;
+      line-height: 0.75;
+      letter-spacing: -0.06em;
+      color: #000;
+      mix-blend-mode: multiply;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* Section 4: Runway Table */
+    .runway-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+    .runway-table th {
+      text-align: left;
+      padding: 12px 16px;
+      border-bottom: 2px solid var(--border-dark);
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+    }
+    .runway-table td {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      transition: background 0.15s ease;
+    }
+    .runway-table tr:hover td {
+      background: #19191e;
+      color: var(--white);
+      cursor: pointer;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      font-size: 0.62rem;
+      border-radius: 2px;
+      font-weight: 700;
+    }
+    .badge-avail { background: rgba(255,255,255,0.1); color: var(--white); }
+    .badge-pre { background: rgba(230,35,20,0.15); color: var(--swiss-red); border: 1px solid rgba(230,35,20,0.3); }
+
+    /* Shopping Drawer */
+    #cartDrawer {
+      position: fixed;
+      top: 0;
+      right: -420px;
+      width: 400px;
+      max-width: 90vw;
+      height: 100vh;
+      background: #0f0f12;
+      border-left: 1px solid var(--border-dark);
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 32px 24px;
+      box-shadow: -20px 0 60px rgba(0,0,0,0.8);
+      transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #cartDrawer.open { right: 0; }
+
+    #drawerBackdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 9998;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    #drawerBackdrop.open { opacity: 1; pointer-events: auto; }
+
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-dark);
+      padding-bottom: 16px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .close-drawer-btn {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      cursor: pointer;
+    }
+    .close-drawer-btn:hover { color: var(--white); }
+
+    .cart-items-list {
+      flex: 1;
+      overflow-y: auto;
+      margin: 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .cart-item-row {
+      display: grid;
+      grid-template-columns: 60px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      background: #16161a;
+      border: 1px solid var(--border-subtle);
+      padding: 10px;
+    }
+    .cart-item-row img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+    }
+
+    .cart-drawer-footer {
+      border-top: 1px solid var(--border-dark);
+      padding-top: 16px;
+      font-family: var(--font-mono);
+    }
+    .checkout-btn {
+      background: var(--white);
+      color: var(--ink);
+      width: 100%;
+      padding: 14px;
+      border: none;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 12px;
+      transition: background 0.15s;
+    }
+    .checkout-btn:hover { background: var(--swiss-red); color: var(--white); }
+
+    /* Bottom Soundbar Dock */
+    .soundbar-dock {
+      position: fixed;
+      bottom: 20px;
+      right: 24px;
+      background: rgba(18, 18, 22, 0.94);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-dark);
+      padding: 8px 14px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 500;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+
+    .dock-track-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 2px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid transparent;
+      transition: all 0.15s;
+    }
+    .dock-track-info:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: var(--border-subtle);
+    }
+    .dock-track-title {
+      font-weight: 700;
+      color: var(--white);
+      max-width: 180px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .dock-track-index {
+      color: var(--swiss-red);
+      font-weight: 700;
+      font-size: 0.6rem;
+    }
+
+    .dock-controls {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .nav-btn {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border-dark);
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      padding: 4px 8px;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .nav-btn:hover {
+      color: var(--white);
+      border-color: var(--white);
+      background: rgba(255,255,255,0.12);
+    }
+
+    .playlist-dropdown {
+      position: absolute;
+      bottom: calc(100% + 12px);
+      right: 0;
+      width: 320px;
+      background: #121216;
+      border: 1px solid var(--border-dark);
+      border-radius: 4px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.95);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 1000;
+    }
+    .playlist-dropdown.open {
+      display: flex;
+    }
+    .playlist-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-dark);
+      background: #17171d;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+    }
+    .close-playlist-btn {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+    .close-playlist-btn:hover { color: var(--white); }
+    .playlist-items {
+      max-height: 250px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .playlist-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .playlist-item:hover {
+      background: #1c1c22;
+    }
+    .playlist-item.active {
+      background: rgba(230,35,20,0.12);
+      border-left: 3px solid var(--swiss-red);
+    }
+    .playlist-item.active .pl-item-title {
+      color: var(--swiss-red);
+      font-weight: 700;
+    }
+    .pl-item-tag {
+      font-size: 0.58rem;
+      color: var(--muted);
+      border: 1px solid var(--border-subtle);
+      padding: 2px 5px;
+      border-radius: 2px;
+    }
+
+    .sound-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 14px;
+    }
+    .sound-bar {
+      width: 2px;
+      background: var(--swiss-red);
+      height: 3px;
+      transition: height 0.2s;
+    }
+    .soundbar-dock.playing .sound-bar:nth-child(1) { animation: soundAnim 0.7s infinite alternate; }
+    .soundbar-dock.playing .sound-bar:nth-child(2) { animation: soundAnim 0.4s infinite alternate 0.2s; }
+    .soundbar-dock.playing .sound-bar:nth-child(3) { animation: soundAnim 0.9s infinite alternate 0.4s; }
+    .soundbar-dock.playing .sound-bar:nth-child(4) { animation: soundAnim 0.5s infinite alternate 0.1s; }
+    @keyframes soundAnim { 0% { height: 3px; } 100% { height: 14px; } }
+
+    .play-trigger {
+      background: transparent;
+      border: none;
+      color: var(--white);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    @media (max-width: 1024px) {
+      .fashion-matrix-grid { grid-template-columns: repeat(2, 1fr); }
+      .fashion-card.span-2 { grid-column: span 1; }
+      .lookbook-grid { grid-template-columns: 1fr; gap: 32px; }
+      .lookbook-col-border, .lookbook-col-leftborder { border: none; padding: 0; }
+      .poster-gallery { grid-template-columns: repeat(2, 1fr); }
+      .split-product-card-body { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 20px 14px 80px; }
+      .fashion-matrix-grid, .poster-gallery { grid-template-columns: 1fr; }
+      .store-header { flex-direction: column; align-items: flex-start; gap: 14px; }
+      .top-telemetry-bar { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .soundbar-dock { left: 14px; right: 14px; bottom: 10px; justify-content: space-between; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Grid Visualizer -->
+  <div id="gridOverlay">
+    <div class="grid-overlay-cols">
+      <div class="grid-overlay-col" data-col="C01"></div>
+      <div class="grid-overlay-col" data-col="C02"></div>
+      <div class="grid-overlay-col" data-col="C03"></div>
+      <div class="grid-overlay-col" data-col="C04"></div>
+      <div class="grid-overlay-col" data-col="C05"></div>
+      <div class="grid-overlay-col" data-col="C06"></div>
+      <div class="grid-overlay-col" data-col="C07"></div>
+      <div class="grid-overlay-col" data-col="C08"></div>
+      <div class="grid-overlay-col" data-col="C09"></div>
+      <div class="grid-overlay-col" data-col="C10"></div>
+      <div class="grid-overlay-col" data-col="C11"></div>
+      <div class="grid-overlay-col" data-col="C12"></div>
+    </div>
+  </div>
+
+  <!-- Shopping Drawer -->
+  <div id="drawerBackdrop" onclick="toggleCart()"></div>
+  <aside id="cartDrawer">
+    <div class="drawer-header">
+      <span>YOUR BAG // <span id="cartCountHeader">02</span> ITEMS</span>
+      <button class="close-drawer-btn" onclick="toggleCart()">X</button>
+    </div>
+
+    <div class="cart-items-list" id="cartItemList">
+      <div class="cart-item-row">
+        <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=200&q=80" alt="Sculptural Dress">
+        <div>
+          <div style="font-size: 0.72rem; font-weight: 700;">Sculptural Draped Dress</div>
+          <div style="font-size: 0.65rem; color: var(--muted); font-family: var(--font-mono);">SIZE: 38 / S - BLACK</div>
+          <div style="font-size: 0.75rem; font-weight: 700; color: var(--swiss-red); margin-top: 4px;">$1,240.00</div>
+        </div>
+        <button style="background:none; border:none; color:var(--muted); cursor:pointer;" onclick="this.closest('.cart-item-row').remove(); updateCartSubtotal();">X</button>
+      </div>
+
+      <div class="cart-item-row">
+        <img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=200&q=80" alt="Bomber Jacket">
+        <div>
+          <div style="font-size: 0.72rem; font-weight: 700;">Cropped Wool Bomber</div>
+          <div style="font-size: 0.65rem; color: var(--muted); font-family: var(--font-mono);">SIZE: 48 / M - BLACK</div>
+          <div style="font-size: 0.75rem; font-weight: 700; color: var(--swiss-red); margin-top: 4px;">$890.00</div>
+        </div>
+        <button style="background:none; border:none; color:var(--muted); cursor:pointer;" onclick="this.closest('.cart-item-row').remove(); updateCartSubtotal();">X</button>
+      </div>
+    </div>
+
+    <div class="cart-drawer-footer">
+      <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--muted);">
+        <span>WORLDWIDE EXPRESS</span>
+        <span style="color:var(--white);">COMPLIMENTARY</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.95rem; font-weight:800; margin-top:8px;">
+        <span>SUBTOTAL</span>
+        <span id="drawerSubtotal">$2,130.00 USD</span>
+      </div>
+      <button class="checkout-btn" onclick="toggleCart()">
+        <span>PROCEED TO CHECKOUT</span>
+        <span>&rarr;</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Ambient Audio Dock & Playlist -->
+  <div class="soundbar-dock" id="soundbarDock">
+    <audio id="bgAudio" preload="metadata"></audio>
+    
+    <div class="sound-bars">
+      <div class="sound-bar"></div>
+      <div class="sound-bar"></div>
+      <div class="sound-bar"></div>
+      <div class="sound-bar"></div>
+    </div>
+
+    <div class="dock-track-info" onclick="togglePlaylistMenu()" title="Click to view full playlist">
+      <span class="dock-track-title" id="currentTrackTitle">PRATEEK KUHAD - CO2</span>
+      <span class="dock-track-index" id="currentTrackIndex">[1/3] &equiv;</span>
+    </div>
+
+    <div class="dock-controls">
+      <button class="nav-btn" onclick="prevTrack()" title="Previous track">&lt;</button>
+      <button class="play-trigger" id="audioToggleBtn" onclick="toggleAudio()">[PLAY]</button>
+      <button class="nav-btn" onclick="nextTrack()" title="Next track">&gt;</button>
+    </div>
+
+    <!-- Playlist Selector Dropdown -->
+    <div class="playlist-dropdown" id="playlistDropdown">
+      <div class="playlist-header">
+        <span>RUNWAY SOUNDTRACK ARCHIVE</span>
+        <button class="close-playlist-btn" onclick="togglePlaylistMenu()">X</button>
+      </div>
+      <div class="playlist-items" id="playlistItems">
+        <!-- Generated by JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- Store Header -->
+    <header class="store-header">
+      <div class="brand-title">
+        <span class="brand-dot"></span> MAHSEN
+      </div>
+
+      <nav class="header-nav">
+        <span>DRESSES</span>
+        <span>OUTERWEAR</span>
+        <span>ARCHIVE</span>
+      </nav>
+
+      <div class="header-actions">
+        <button class="grid-toggle-btn" id="toggleGridBtn" onclick="toggleGrid()">GRID GUIDE</button>
+        <div class="bag-pill" onclick="toggleCart()">
+          BAG <span id="bagCountPill">[02]</span> <span id="bagSubtotalPill" style="color:white; margin-left:4px;">$2,130</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Telemetry Bar -->
+    <div class="top-telemetry-bar">
+      <div class="telemetry-tag">
+        <span class="status-pulse"></span>
+        <span>SYSTEM: AUTUMN WINTER 2026 ACTIVE ARCHIVE</span>
+      </div>
+      <div class="telemetry-tag">
+        <span>CURRENCY: USD ($)</span>
+        <span style="margin: 0 8px;">|</span>
+        <div class="grid-view-switcher">
+          <button class="view-btn active" onclick="setGridView('4col', this)">4-COL MATRIX</button>
+          <button class="view-btn" onclick="setGridView('2col', this)">2-COL BROADSHEET</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 1: Product Matrix -->
+    <section class="section-wrapper">
+      <div class="section-meta-head">
+        <h2 class="section-name">01 / Autumn Winter Collection</h2>
+        <div class="section-sub">REAL SPECIMENS - ARCHITECTURAL DRAPES</div>
+      </div>
+
+      <div class="fashion-matrix-grid" id="matrixGrid">
+        
+        <!-- Row 1, Card 1: Gown -->
+        <article class="fashion-card span-2" id="cardSculpturalDress">
+          <div class="card-top-tag">
+            <span>LOOK 01 // COUTURE DRESS</span>
+            <span>SKU: MH-DRS-01</span>
+          </div>
+
+          <div class="garment-img-frame" style="height: 280px;">
+            <img 
+              src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=900&q=80" 
+              alt="Architectural Sculptural Black Evening Dress"
+              class="garment-photo"
+              id="mainDressPhoto"
+            >
+            <div class="photo-overlay-tag">DRAPED SILK TAFFETA</div>
+            <div class="photo-zoom-tag">MAHSEN ATELIER</div>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <h3 class="product-title">Architectural Sculptural Draped Dress</h3>
+              <div class="product-price">$1,240.00 USD</div>
+            </div>
+
+            <div class="swatch-group">
+              <span class="swatch-label">COLOR:</span>
+              <div class="swatch-dot swatch-black active" title="Black" onclick="updateDress('black')"></div>
+              <div class="swatch-dot swatch-chalk" title="Raw Chalk" onclick="updateDress('chalk')"></div>
+              <div class="swatch-dot swatch-red" title="Signal Red" onclick="updateDress('red')"></div>
+            </div>
+
+            <div class="size-selector">
+              <button class="size-btn">36 / XS</button>
+              <button class="size-btn active">38 / S</button>
+              <button class="size-btn">40 / M</button>
+              <button class="size-btn">42 / L</button>
+            </div>
+          </div>
+
+          <button class="quick-buy-btn" onclick="addToBag('Sculptural Draped Dress', 1240, 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=200&q=80', '38 / S')">
+            <span>ACQUIRE DRESS</span>
+            <span>+</span>
+          </button>
+        </article>
+
+        <!-- Row 1, Card 2: Pleated Dress -->
+        <article class="fashion-card accent-canvas">
+          <div class="card-top-tag">
+            <span>LOOK 02 // PLEATED GOWN</span>
+            <span>$890.00</span>
+          </div>
+
+          <div class="garment-img-frame">
+            <img 
+              src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80" 
+              alt="Asymmetric Pleated White Dress"
+              class="garment-photo"
+            >
+            <div class="photo-overlay-tag" style="background: rgba(255,255,255,0.85); color: #000;">RAW CHALK PLEATS</div>
+          </div>
+
+          <div>
+            <h3 class="product-title">One-Shoulder Pleated Column Dress</h3>
+            <div class="swatch-group">
+              <span class="swatch-label" style="color: #666;">COLOR:</span>
+              <div class="swatch-dot swatch-chalk active"></div>
+              <div class="swatch-dot swatch-black"></div>
+            </div>
+          </div>
+
+          <button class="quick-buy-btn" style="background: var(--ink); color: #fff;" onclick="addToBag('One-Shoulder Pleated Dress', 890, 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=200&q=80', '38 / S')">
+            <span>ADD TO BAG</span>
+            <span>+</span>
+          </button>
+        </article>
+
+        <!-- Row 1, Card 3: Bomber -->
+        <article class="fashion-card">
+          <div class="card-top-tag">
+            <span>LOOK 03 // OUTERWEAR</span>
+            <span>$890.00</span>
+          </div>
+
+          <div class="garment-img-frame">
+            <img 
+              src="https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&q=80" 
+              alt="Cropped Architectural Bomber Jacket"
+              class="garment-photo"
+            >
+            <div class="photo-overlay-tag">520 GSM MELTON</div>
+          </div>
+
+          <div>
+            <h3 class="product-title">Cropped Wool Bomber Jacket</h3>
+            <div class="swatch-group">
+              <span class="swatch-label">COLOR:</span>
+              <div class="swatch-dot swatch-black active"></div>
+              <div class="swatch-dot swatch-red"></div>
+            </div>
+          </div>
+
+          <button class="quick-buy-btn" style="background: #1e1e24; color: #fff;" onclick="addToBag('Cropped Wool Bomber', 890, 'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=200&q=80', '48 / M')">
+            <span>ADD TO BAG</span>
+            <span>+</span>
+          </button>
+        </article>
+
+        <!-- Row 2, Card 4: Red Fitting Card -->
+        <article class="fashion-card accent-red">
+          <div class="card-top-tag">
+            <span>VIP ACCESS // EXCLUSIVE</span>
+            <span>LIMITED [12 SLOTS]</span>
+          </div>
+
+          <div style="margin: 12px 0;">
+            <div style="font-family: var(--font-mono); font-size: 0.68rem; opacity: 0.9; margin-bottom: 4px;">CUSTOM TAILORING</div>
+            <h3 style="font-size: 1.35rem; font-weight: 900; line-height: 1.1; letter-spacing: -0.02em;">Made-to-Measure Custom Fitting</h3>
+            <div style="font-family: var(--font-mono); font-size: 1.15rem; font-weight: 900; margin: 10px 0;">$2,800.00 USD</div>
+            <p style="font-size: 0.75rem; line-height: 1.45; opacity: 0.95;">
+              Private 1-on-1 tailoring session with master tailors. Includes 3 physical fittings and custom pattern creation for your exact measurements.
+            </p>
+          </div>
+
+          <div>
+            <div style="font-family: var(--font-mono); font-size: 0.65rem; padding: 6px 0; border-top: 1px solid rgba(255,255,255,0.3); margin-bottom: 12px;">
+              AVAILABILITY: <strong>1 OF 12 SLOTS OPEN</strong>
+            </div>
+            <button class="quick-buy-btn" style="background: #fff; color: var(--ink);" onclick="addToBag('Made-to-Measure Custom Fitting', 2800, 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=200&q=80', 'Custom Slot')">
+              <span>BOOK CUSTOM FITTING</span>
+              <span>+</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- Row 2, Card 5: Overcoat (Option 1 Full Image CDN) -->
+        <article class="fashion-card span-2">
+          <div class="card-top-tag">
+            <span>LOOK 04 // TAILORING</span>
+            <span>LIMITED [08 PIECES]</span>
+          </div>
+
+          <div class="split-product-card-body">
+            <div class="split-img-box">
+              <img 
+                src="https://files.catbox.moe/z4dgjx.jpg" 
+                alt="Double-Breasted Raw Wool Overcoat"
+              >
+              <div class="photo-overlay-tag">ITALIAN VIRGIN WOOL</div>
+            </div>
+
+            <div class="split-details-box">
+              <div>
+                <h3 class="product-title">Double-Breasted Raw Wool Overcoat</h3>
+                <div class="product-price">$1,450.00 USD</div>
+                <p style="font-size: 0.78rem; line-height: 1.45; color: var(--text-dim); margin: 8px 0 12px;">
+                  Full-canvas tailored structure with exaggerated peak lapels, cupro lining, and hand-stitched horn buttons.
+                </p>
+                <div class="swatch-group" style="margin-bottom: 8px;">
+                  <span class="swatch-label">COLOR:</span>
+                  <div class="swatch-dot swatch-black active"></div>
+                  <div class="swatch-dot swatch-chalk"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="size-selector" style="margin: 0 0 12px;">
+                  <button class="size-btn">46 / S</button>
+                  <button class="size-btn active">48 / M</button>
+                  <button class="size-btn">50 / L</button>
+                </div>
+                <button class="quick-buy-btn" onclick="addToBag('Double-Breasted Wool Overcoat', 1450, 'https://files.catbox.moe/z4dgjx.jpg', '48 / M')">
+                  <span>PRE-ORDER OVERCOAT</span>
+                  <span>&nearr;</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Row 2, Card 6: Silk Tunic -->
+        <article class="fashion-card">
+          <div class="card-top-tag">
+            <span>LOOK 05 // SILK DRAPE</span>
+            <span>$680.00</span>
+          </div>
+
+          <div class="garment-img-frame">
+            <img 
+              src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&q=80" 
+              alt="Draped Silk Tunic and Trouser Ensemble"
+              class="garment-photo"
+            >
+            <div class="photo-overlay-tag">RAW SILK CREPE</div>
+          </div>
+
+          <div>
+            <h3 class="product-title">Draped Architectural Silk Tunic</h3>
+            <div class="swatch-group">
+              <span class="swatch-label">COLOR:</span>
+              <div class="swatch-dot swatch-black active"></div>
+              <div class="swatch-dot swatch-chalk"></div>
+            </div>
+          </div>
+
+          <button class="quick-buy-btn" style="background: #1e1e24; color: #fff;" onclick="addToBag('Draped Silk Tunic', 680, 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=200&q=80', '38 / S')">
+            <span>ADD TO BAG</span>
+            <span>+</span>
+          </button>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- Section 2: Lookbook Monograph -->
+    <section class="section-wrapper">
+      <div class="section-meta-head">
+        <h2 class="section-name">02 / Dress Monograph</h2>
+        <div class="section-sub">MAHSEN STUDY N 09 // HIGH COUTURE</div>
+      </div>
+
+      <div class="lookbook-stage">
+        <div class="lookbook-grid">
+          
+          <div class="lookbook-col lookbook-col-border">
+            <div style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--swiss-red); font-weight: 700;">
+              INDEX: MH-DRS-09
+            </div>
+            <table class="micro-spec-table">
+              <tr>
+                <td>GARMENT</td>
+                <td>SCULPTURAL GOWN</td>
+              </tr>
+              <tr>
+                <td>MATERIAL</td>
+                <td>100% HEAVY SILK TAFFETA</td>
+              </tr>
+              <tr>
+                <td>INTERNAL</td>
+                <td>BONED CORSET STRUCTURE</td>
+              </tr>
+              <tr>
+                <td>HEM</td>
+                <td>ASYMMETRIC TRAIN</td>
+              </tr>
+              <tr>
+                <td>CRAFT</td>
+                <td>HAND-DRAPED ATELIER</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="lookbook-col">
+            <div style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--muted);">SILHOUETTE NO. 09</div>
+            <h3 class="editorial-hero-title">Sculptural Tension Between Body and Space.</h3>
+            <div style="display: flex; gap: 12px; margin-top: 14px;">
+              <button class="quick-buy-btn" style="flex: 2;" onclick="addToBag('Bespoke Sculptural Dress', 1240, 'https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=200&q=80', 'Bespoke')">
+                <span>ORDER BESPOKE DRESS ($1,240)</span>
+                <span>+</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="lookbook-col lookbook-col-leftborder">
+            <div class="broadsheet-hero-img-box">
+              <img 
+                src="https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=800&q=80" 
+                alt="Editorial Model Wearing Sculptural Gown"
+                class="broadsheet-hero-img"
+              >
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Campaign Posters -->
+    <section class="section-wrapper">
+      <div class="section-meta-head">
+        <h2 class="section-name">03 / Campaign Series</h2>
+        <div class="section-sub">HOVER TO ELEVATE // 4 RUNWAY LOOKS</div>
+      </div>
+
+      <div class="poster-stage">
+        <div class="poster-gallery">
+          
+          <article class="poster poster-look1" id="cardLook1">
+            <img 
+              src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=900&q=80" 
+              alt="Runway Model Gown" 
+              class="poster-full-img"
+            >
+            <div class="poster-meta">
+              MAHSEN AW26<br>
+              RUNWAY LOOK 01<br>
+              ARCHIVE SERIES
+            </div>
+            <div class="poster-vertical-title">MAHSEN</div>
+          </article>
+
+          <article class="poster poster-dual" id="cardDual">
+            <div class="dual-header">
+              <span>01</span>
+              <span>-</span>
+              <span>02</span>
+              <span>-</span>
+              <span>03</span>
+            </div>
+            <div class="dual-body">
+              <div class="dual-photo-slot">
+                <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80" alt="Look 02 Dress">
+              </div>
+              <div class="dual-photo-slot">
+                <img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=600&q=80" alt="Look 03 Bomber">
+              </div>
+            </div>
+            <div style="font-family: var(--font-mono); font-size: 0.6rem; color: #fff; display: flex; justify-content: space-between; z-index: 5;">
+              <span>PARIS / ZURICH</span>
+              <span>OCTOBER 2026</span>
+            </div>
+          </article>
+
+          <article class="poster poster-seven" id="cardSeven">
+            <img 
+              src="https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=800&q=80" 
+              alt="Capsule Seven Model" 
+              class="poster-full-img"
+              style="filter: grayscale(100%) contrast(115%); opacity: 0.88;"
+            >
+            <div class="seven-header-box">
+              <div style="font-size: 1.6rem; font-weight: 900; letter-spacing: -0.04em;">seven</div>
+              <div style="font-family: var(--font-mono); font-size: 0.65rem; margin-top: 6px; line-height: 1.35;">
+                CAPSULE COLLECTION<br>
+                <strong>PRICE: $650</strong>
+              </div>
+            </div>
+            <div class="seven-giant-graphic">7</div>
+          </article>
+
+          <article class="poster poster-red" id="cardRed">
+            <img 
+              src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&q=80" 
+              alt="Exclusive Silhouette" 
+              class="poster-full-img"
+              style="mix-blend-mode: multiply; opacity: 0.88;"
+            >
+            <div style="font-family: var(--font-mono); font-size: 0.65rem; text-align: right; line-height: 1.4; z-index: 5;">
+              LIMITED RELEASE<br>
+              DIRECT PRESS<br><br>
+              DROP 04 // 2026
+            </div>
+            
+            <div class="red-giant-type">aw</div>
+            
+            <div style="font-family: var(--font-mono); font-size: 0.65rem; text-align: right; z-index: 5; font-weight: 700;">
+              MAHSEN EXCLUSIVE
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Runway Table -->
+    <section class="section-wrapper">
+      <div class="section-meta-head">
+        <h2 class="section-name">04 / Runway Index &amp; Inventory</h2>
+        <div class="section-sub">COMPLETE AW26 ARCHIVE MATRIX</div>
+      </div>
+
+      <div style="background:#111114; border:1px solid var(--border-dark); overflow-x:auto;">
+        <table class="runway-table">
+          <thead>
+            <tr>
+              <th>LOOK</th>
+              <th>PIECE NAME</th>
+              <th>PRIMARY FABRIC</th>
+              <th>EDITION SIZE</th>
+              <th>PRICE (USD)</th>
+              <th>STATUS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color:var(--swiss-red); font-weight:700;">LOOK 01</td>
+              <td style="font-weight:700;">Architectural Sculptural Draped Dress</td>
+              <td>100% Silk Taffeta</td>
+              <td>12 Bespoke Pieces</td>
+              <td>$1,240.00</td>
+              <td><span class="status-badge badge-avail">IN ATELIER</span></td>
+            </tr>
+            <tr>
+              <td style="color:var(--swiss-red); font-weight:700;">LOOK 02</td>
+              <td style="font-weight:700;">One-Shoulder Pleated Column Dress</td>
+              <td>Pleated Cotton Chiffon</td>
+              <td>25 Pieces</td>
+              <td>$890.00</td>
+              <td><span class="status-badge badge-avail">IN STOCK</span></td>
+            </tr>
+            <tr>
+              <td style="color:var(--swiss-red); font-weight:700;">LOOK 03</td>
+              <td style="font-weight:700;">Cropped Architectural Wool Bomber</td>
+              <td>520 GSM Melton Wool</td>
+              <td>40 Pieces</td>
+              <td>$890.00</td>
+              <td><span class="status-badge badge-avail">IN STOCK</span></td>
+            </tr>
+            <tr>
+              <td style="color:var(--swiss-red); font-weight:700;">LOOK 04</td>
+              <td style="font-weight:700;">Double-Breasted Raw Wool Overcoat</td>
+              <td>Italian Virgin Wool</td>
+              <td>08 Pieces</td>
+              <td>$1,450.00</td>
+              <td><span class="status-badge badge-pre">PRE-ORDER</span></td>
+            </tr>
+            <tr>
+              <td style="color:var(--swiss-red); font-weight:700;">LOOK 05</td>
+              <td style="font-weight:700;">Draped Architectural Silk Tunic</td>
+              <td>Raw Silk Crepe</td>
+              <td>18 Pieces</td>
+              <td>$680.00</td>
+              <td><span class="status-badge badge-avail">IN STOCK</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    function toggleGrid() {
+      var overlay = document.getElementById('gridOverlay');
+      var btn = document.getElementById('toggleGridBtn');
+      overlay.classList.toggle('active');
+      btn.classList.toggle('active');
+    }
+
+    function setGridView(mode, btn) {
+      var grid = document.getElementById('matrixGrid');
+      var btns = document.querySelectorAll('.view-btn');
+      for (var i = 0; i < btns.length; i++) {
+        btns[i].classList.remove('active');
+      }
+      btn.classList.add('active');
+      if (mode === '2col') {
+        grid.classList.add('view-2col');
+      } else {
+        grid.classList.remove('view-2col');
+      }
+    }
+
+    var posters = document.querySelectorAll('.poster');
+    var topZ = 30;
+    for (var p = 0; p < posters.length; p++) {
+      posters[p].addEventListener('mouseenter', function() {
+        topZ++;
+        this.style.zIndex = topZ;
+      });
+    }
+
+    var sizeBtns = document.querySelectorAll('.size-btn');
+    for (var s = 0; s < sizeBtns.length; s++) {
+      sizeBtns[s].addEventListener('click', function(e) {
+        var parent = e.target.closest('.size-selector');
+        if (parent) {
+          var siblings = parent.querySelectorAll('.size-btn');
+          for (var k = 0; k < siblings.length; k++) {
+            siblings[k].classList.remove('active');
+          }
+          e.target.classList.add('active');
+        }
+      });
+    }
+
+    function updateDress(color) {
+      var img = document.getElementById('mainDressPhoto');
+      if (!img) return;
+      if (color === 'chalk') {
+        img.src = "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=80";
+      } else if (color === 'red') {
+        img.src = "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=900&q=80";
+      } else {
+        img.src = "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=900&q=80";
+      }
+    }
+
+    function toggleCart() {
+      var drawer = document.getElementById('cartDrawer');
+      var backdrop = document.getElementById('drawerBackdrop');
+      drawer.classList.toggle('open');
+      backdrop.classList.toggle('open');
+    }
+
+    function addToBag(title, price, imgSrc, size) {
+      var list = document.getElementById('cartItemList');
+      var row = document.createElement('div');
+      row.className = 'cart-item-row';
+      
+      var imgEl = document.createElement('img');
+      imgEl.src = imgSrc;
+      imgEl.alt = title;
+      
+      var infoDiv = document.createElement('div');
+      var titleDiv = document.createElement('div');
+      titleDiv.style.fontSize = '0.72rem';
+      titleDiv.style.fontWeight = '700';
+      titleDiv.textContent = title;
+      
+      var sizeDiv = document.createElement('div');
+      sizeDiv.style.fontSize = '0.65rem';
+      sizeDiv.style.color = 'var(--muted)';
+      sizeDiv.style.fontFamily = 'var(--font-mono)';
+      sizeDiv.textContent = 'SIZE: ' + size;
+      
+      var priceDiv = document.createElement('div');
+      priceDiv.style.fontSize = '0.75rem';
+      priceDiv.style.fontWeight = '700';
+      priceDiv.style.color = 'var(--swiss-red)';
+      priceDiv.style.marginTop = '4px';
+      priceDiv.textContent = '$' + price.toLocaleString() + '.00';
+      
+      infoDiv.appendChild(titleDiv);
+      infoDiv.appendChild(sizeDiv);
+      infoDiv.appendChild(priceDiv);
+      
+      var closeBtn = document.createElement('button');
+      closeBtn.style.background = 'none';
+      closeBtn.style.border = 'none';
+      closeBtn.style.color = 'var(--muted)';
+      closeBtn.style.cursor = 'pointer';
+      closeBtn.textContent = 'X';
+      closeBtn.onclick = function() {
+        row.remove();
+        updateCartSubtotal();
+      };
+      
+      row.appendChild(imgEl);
+      row.appendChild(infoDiv);
+      row.appendChild(closeBtn);
+      
+      list.insertBefore(row, list.firstChild);
+      updateCartSubtotal();
+      toggleCart();
+    }
+
+    function updateCartSubtotal() {
+      var rows = document.querySelectorAll('.cart-item-row');
+      var total = 0;
+      for (var i = 0; i < rows.length; i++) {
+        var priceEl = rows[i].querySelector('div div:last-child');
+        if (priceEl) {
+          var num = parseInt(priceEl.textContent.replace(/[^0-9]/g, '')) / 100 || 0;
+          total += num;
+        }
+      }
+      var count = rows.length;
+      var countStr = count < 10 ? '0' + count : count;
+      document.getElementById('bagCountPill').textContent = '[' + countStr + ']';
+      document.getElementById('cartCountHeader').textContent = countStr;
+      document.getElementById('bagSubtotalPill').textContent = '$' + total.toLocaleString();
+      document.getElementById('drawerSubtotal').textContent = '$' + total.toLocaleString() + '.00 USD';
+    }
+
+    var playlist = [
+      {
+        title: "PRATEEK KUHAD - CO2",
+        artist: "Prateek Kuhad",
+        tag: "OFFICIAL AUDIO",
+        src: "https://files.catbox.moe/13avwm.mp4"
+      },
+      {
+        title: "SHAKIRA & BURNA BOY - DAI DAI",
+        artist: "Shakira & Burna Boy",
+        tag: "WORLD CUP 2026",
+        src: "https://files.catbox.moe/qbgxwc.mp4"
+      },
+      {
+        title: "DON MIGUELO - Y QUE FUE?",
+        artist: "Don Miguelo",
+        tag: "OFFICIAL AUDIO",
+        src: "https://files.catbox.moe/39hkix.mp4"
+      }
+    ];
+
+    var currentTrackIdx = 0;
+    var audioEl = document.getElementById('bgAudio');
+
+    function initPlaylist() {
+      var container = document.getElementById('playlistItems');
+      if (!container) return;
+      container.innerHTML = '';
+      
+      playlist.forEach(function(item, idx) {
+        var row = document.createElement('div');
+        row.className = 'playlist-item' + (idx === currentTrackIdx ? ' active' : '');
+        row.onclick = function() {
+          playTrack(idx);
+          togglePlaylistMenu();
+        };
+        
+        row.innerHTML = '<div>' +
+          '<div class="pl-item-title" style="font-size:0.68rem;">' + (idx + 1 < 10 ? '0' + (idx + 1) : (idx + 1)) + ' // ' + item.title + '</div>' +
+          '<div style="font-size:0.58rem; color:var(--muted); margin-top:2px;">' + item.artist + '</div>' +
+        '</div>' +
+        '<span class="pl-item-tag">' + item.tag + '</span>';
+        
+        container.appendChild(row);
+      });
+
+      if (audioEl && playlist[currentTrackIdx]) {
+        audioEl.src = playlist[currentTrackIdx].src;
+        updateDockUI();
+      }
+
+      if (audioEl) {
+        audioEl.addEventListener('ended', function() {
+          nextTrack();
+        });
+      }
+    }
+
+    function updateDockUI() {
+      var item = playlist[currentTrackIdx];
+      if (!item) return;
+      document.getElementById('currentTrackTitle').textContent = item.title;
+      document.getElementById('currentTrackIndex').textContent = '[' + (currentTrackIdx + 1) + '/' + playlist.length + '] \u2261';
+
+      var rows = document.querySelectorAll('.playlist-item');
+      rows.forEach(function(r, idx) {
+        if (idx === currentTrackIdx) {
+          r.classList.add('active');
+        } else {
+          r.classList.remove('active');
+        }
+      });
+    }
+
+    function playTrack(idx) {
+      if (idx < 0 || idx >= playlist.length) return;
+      currentTrackIdx = idx;
+      var item = playlist[currentTrackIdx];
+      if (!audioEl) return;
+      
+      audioEl.pause();
+      audioEl.src = item.src;
+      audioEl.load();
+      updateDockUI();
+      
+      var dock = document.getElementById('soundbarDock');
+      var btn = document.getElementById('audioToggleBtn');
+      
+      var playPromise = audioEl.play();
+      if (playPromise !== undefined) {
+        playPromise.then(function() {
+          dock.classList.add('playing');
+          btn.textContent = '[PAUSE]';
+        }).catch(function(err) {
+          console.log("Playback error for track " + idx + ":", err);
+        });
+      }
+    }
+
+    function nextTrack() {
+      var nextIdx = (currentTrackIdx + 1) % playlist.length;
+      playTrack(nextIdx);
+    }
+
+    function prevTrack() {
+      var prevIdx = (currentTrackIdx - 1 + playlist.length) % playlist.length;
+      playTrack(prevIdx);
+    }
+
+    function toggleAudio() {
+      var dock = document.getElementById('soundbarDock');
+      var btn = document.getElementById('audioToggleBtn');
+      if (!audioEl) return;
+
+      if (audioEl.paused) {
+        if (!audioEl.src) {
+          audioEl.src = playlist[currentTrackIdx].src;
+        }
+        var playPromise = audioEl.play();
+        if (playPromise !== undefined) {
+          playPromise.then(function() {
+            dock.classList.add('playing');
+            btn.textContent = '[PAUSE]';
+          }).catch(function(err) {
+            console.error("Playback error:", err);
+          });
+        }
+      } else {
+        audioEl.pause();
+        dock.classList.remove('playing');
+        btn.textContent = '[PLAY]';
+      }
+    }
+
+    function togglePlaylistMenu() {
+      var dropdown = document.getElementById('playlistDropdown');
+      if (dropdown) {
+        dropdown.classList.toggle('open');
+      }
+    }
+
+    // Initialize playlist on page load
+    initPlaylist();
+  </script>
+</body>
+</html>
